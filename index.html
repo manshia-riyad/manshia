@@ -48,6 +48,7 @@ h2::before{content:"";width:6px;height:24px;background:var(--gold);border-radius
 .tool p{margin:4px 0 14px;color:var(--muted);font-size:16px}
 .btn,.wa-btn{display:inline-block;background:#12803f;color:#fff;text-decoration:none;font-weight:700;padding:11px 22px;border-radius:12px}
 .calc label{display:block;margin:10px 0 0;font-weight:700;font-size:15px}
+.calc label[hidden]{display:none}
 .calc select{display:block;width:100%;margin-top:4px;padding:11px 12px;font:inherit;font-weight:400;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px}
 .calc .res{margin:16px 0 8px;background:var(--soft);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-size:17px}
 .calc .res b{font-size:28px;color:var(--head)}
@@ -101,8 +102,8 @@ footer{margin-top:44px;text-align:center;color:var(--muted);font-size:14px}
       <div class="tool calc">
         <strong>احسب رسوم شحنتك</strong>
         <p>اختار الخدمة والمحافظة والوزن وهيظهرلك السعر.</p>
-        <label>الخدمة<select id="cSvc"><option value="ems">البريد السريع</option><option value="easy">إيزي بوكس - محلات إقامة</option></select></label>
-        <label>المحافظة<select id="cGov"></select></label>
+        <label>الخدمة<select id="cSvc"><option value="ems">البريد السريع</option><option value="easy">إيزي بوكس - محلات إقامة</option><option value="po">إيزي بوكس - تسليم مكتب بريد</option></select></label>
+        <label id="gLbl">المحافظة<select id="cGov"></select></label>
         <label>الوزن<select id="cW"></select></label>
         <div class="res" aria-live="polite"><span>السعر:</span> <b id="cRes"></b></div>
         <small>الأسعار حسب قائمة أسعار المكتب وممكن تتغير. اسأل الموظف للتأكيد.</small>
@@ -153,8 +154,10 @@ easy:{"from":2,"t":[[63.2,71.2,79.2,87.15,95.15,103.1,111.1,119.1,127.05,135.05,
 var svc=document.getElementById("cSvc"),gov=document.getElementById("cGov"),w=document.getElementById("cW"),res=document.getElementById("cRes");
 var names=[];G.forEach(function(g,i){g.forEach(function(n){names.push([n,i]);});});
 names.forEach(function(x,i){var o=document.createElement("option");o.value=i;o.textContent=x[0];gov.appendChild(o);});
-function fillW(){var s=P[svc.value],n=s.t[0].length;w.innerHTML="";for(var i=0;i<n;i++){var o=document.createElement("option");o.value=i;o.textContent=(s.from+i).toLocaleString("ar-EG")+" كيلو";w.appendChild(o);}}
-function calc(){var s=P[svc.value],g=names[+gov.value][1],v=s.t[g][+w.value];res.textContent=v.toLocaleString("ar-EG",{minimumFractionDigits:2,maximumFractionDigits:2})+" جنيه";}
+var PO=[["حتى ٣ كيلو",59.8],["أكثر من ٣ كيلو حتى ٥ كيلو",75.75],["أكثر من ٥ كيلو حتى ١١ كيلو",163.55],["أكثر من ١١ كيلو حتى ٢٠ كيلو",213.35],["أكثر من ٢٠ كيلو حتى ٣٠ كيلو",243.35]];
+var gl=document.getElementById("gLbl");
+function fillW(){w.innerHTML="";if(svc.value==="po"){gl.hidden=true;PO.forEach(function(x,i){var o=document.createElement("option");o.value=i;o.textContent=x[0];w.appendChild(o);});return;}gl.hidden=false;var s=P[svc.value],n=s.t[0].length;for(var i=0;i<n;i++){var o=document.createElement("option");o.value=i;o.textContent=(s.from+i).toLocaleString("ar-EG")+" كيلو";w.appendChild(o);}}
+function calc(){var v;if(svc.value==="po"){v=PO[+w.value][1];}else{var s=P[svc.value],g=names[+gov.value][1];v=s.t[g][+w.value];}res.textContent=v.toLocaleString("ar-EG",{minimumFractionDigits:2,maximumFractionDigits:2})+" جنيه";}
 svc.addEventListener("change",function(){fillW();calc();});
 gov.addEventListener("change",calc);w.addEventListener("change",calc);
 fillW();calc();
